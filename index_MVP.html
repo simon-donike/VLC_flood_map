@@ -9,23 +9,6 @@
   <style>
     #map { height: 100vh; }
 
-    /* Toggle button styles */
-    .toggle-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-      padding: 10px 15px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .toggle-button:hover {
-      background-color: #45a049;
-    }
-
     /* Modal styles */
     .modal {
       display: none;
@@ -36,17 +19,15 @@
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
-      overflow-y: auto; /* Allow scrolling on small screens */
     }
     .modal-content {
       background-color: white;
-      margin: 10% auto;
+      margin: 15% auto;
       padding: 20px;
       border-radius: 8px;
-      width: 90%;
+      width: 80%;
       max-width: 400px;
       text-align: center;
-      font-size: 1rem; /* Base font size for responsiveness */
     }
     .close-button {
       background-color: #4CAF50;
@@ -60,21 +41,19 @@
       background-color: #45a049;
     }
     .big  {
-      font-size: 1.5rem;
+     font-size: 25px;
     }
-    .small {
-      font-size: 1rem;
+    .small  {
+     font-size: 16px;
     }
-    .med {
-      font-size: 1.2rem;
+    .med  {
+     font-size: 20px;
     }
-
     /* Legend styles */
     .legend {
-      display: none; /* Start hidden, toggle later */
       background: white;
       padding: 10px;
-      line-height: 1.4rem;
+      line-height: 18px;
       color: #333;
       border-radius: 5px;
     }
@@ -85,31 +64,17 @@
       margin-right: 8px;
       opacity: 0.7;
     }
-
-    /* Media query for smaller screens */
-    @media (max-width: 600px) {
-      #map { height: 90vh; } /* Slightly reduce map height for mobile */
-      .modal-content {
-        font-size: 0.9rem;
-      }
-      .legend {
-        font-size: 0.9rem;
-      }
-    }
   </style>
 </head>
 <body>
-  <!-- Toggle Button -->
-  <button class="toggle-button" onclick="toggleLegend()">Open Legend</button>
-
   <!-- Modal box -->
   <div id="infoModal" class="modal">
     <div class="modal-content">
       <p class="med"><strong>WARNING</strong></p>
       <p class="small"> The flood extent displayed on this map was derived from a machine learning
         flood detection model applied to satellite imagery. This detection combines results from a LANDSAT-8 
-        image taken on the 30th and a Sentinel-2 image from the 31st. Some affected areas, particularly urban zones, 
-        may not have been correctly identified due to the resolution of the input data and the challenges of identifying flood 
+        image taken on the 30th and an Sentinel-2 image from the 31st. Some affected areas, particularly urban zones, 
+        may not have been correctly idenfified due to the resolution of the input data and the challenges of identifying flood 
         damage in areas where water has already receded.<br><br>
         <strong>This data has not been validated. It is not suitable for decision-making purposes.</strong>
       </p>
@@ -181,11 +146,12 @@
       })
       .catch(error => console.log('Error loading Extent Border GeoJSON:', error));
 
+
     // Add a legend to the map
     var legend = L.control({ position: "bottomright" });
     legend.onAdd = function() {
       var div = L.DomUtil.create("div", "legend");
-      div.innerHTML += "<h3>Flooded Areas, DANA VLC 2024</h3>";
+      div.innerHTML += "<h3>Flooded Areas by Land Use, DANA Valencia 2024</h3>";
       div.innerHTML += "<h4>30th & 31st of October 2024</h4>";
       div.innerHTML += '<a href="https://github.com/simon-donike/VLC_flood_map" target="_blank">GitHub Repository</a>'; 
       div.innerHTML += '<br>';
@@ -197,16 +163,6 @@
       return div;
     };
     legend.addTo(map);
-
-    // Function to toggle the legend visibility
-    function toggleLegend() {
-      var legendElement = document.querySelector('.legend');
-      if (legendElement.style.display === 'none' || legendElement.style.display === '') {
-        legendElement.style.display = 'block';
-      } else {
-        legendElement.style.display = 'none';
-      }
-    }
   </script>
 </body>
 </html>
