@@ -151,8 +151,10 @@
     var legend = L.control({ position: "bottomright" });
     legend.onAdd = function() {
       var div = L.DomUtil.create("div", "legend");
-      div.innerHTML += "<h3>Flooded Areas by Land Use</h3>";
+      div.innerHTML += "<h3>Flooded Areas by Land Use, DANA Valencia 2024</h3>";
       div.innerHTML += "<h4>30th & 31st of October 2024</h4>";
+      div.innerHTML += '<a href="https://github.com/simon-donike/VLC_flood_map" target="_blank">GitHub Repository</a>'; 
+      div.innerHTML += '<br>';
       div.innerHTML += '</i> This map does not highlight areas that<br> were covered by water previous to the event.<br><br>';
       div.innerHTML += '<i style="background: #FF0000"></i> Flooded Built-up (Residential/Industrial)<br>';
       div.innerHTML += '<i style="background: #00FF00"></i> Flooded Agricultural Land<br>';
