@@ -97,7 +97,7 @@
     };
 
     // Initialize the map with Valencia, Spain as the starting point
-    var map = L.map('map').setView([39.391667617880465, -0.36896299370032937], 12);
+    var map = L.map('map').setView([39.35, -0.36], 11);
 
     // Add OSM tile layer as background
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -156,7 +156,7 @@
       div.innerHTML += '<i style="background: #FF0000"></i> Flooded Built-up (Residential/Industrial)<br>';
       div.innerHTML += '<i style="background: #00FF00"></i> Flooded Agricultural Land<br>';
       div.innerHTML += '<i style="background: #0000FF"></i> Flooded Area - General<br>';
-      div.innerHTML += '<i style="background: #000000; opacity: 1; border: 1px solid #000"></i> Study Area Extent<br>';
+      div.innerHTML += '<i style="background: #000000"></i> Study Area Extent<br>';
       return div;
     };
     legend.addTo(map);
