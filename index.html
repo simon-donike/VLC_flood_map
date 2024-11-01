@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flood Map Valencia</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+  <style>
+    #map { height: 100vh; }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .close-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .close-button:hover {
+      background-color: #45a049;
+    }
+    .big  {
+     font-size: 25px;
+    }
+    .small  {
+     font-size: 16px;
+    }
+    .med  {
+     font-size: 20px;
+    }
+    /* Legend styles */
+    .legend {
+      background: white;
+      padding: 10px;
+      line-height: 18px;
+      color: #333;
+      border-radius: 5px;
+    }
+    .legend i {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin-right: 8px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <!-- Modal box -->
+  <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <p class="med">WARNING</p>
+      <p class="small"> This data shows the extent of standing/flowing water on the 30th of October, the day after the flood. More damage
+        may have occurred before the acquisition date of the image.
+        The data is based on satellite imagery and is not validated on the ground. The data is not suitable for navigation or decision making.
+      </p>
+      <button class="close-button" onclick="closeModal()">OK</button>
+    </div>
+  </div>
+
+  <!-- Map container -->
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    // Function to close the modal
+    function closeModal() {
+      document.getElementById("infoModal").style.display = "none";
+    }
+
+    // Show modal on page load
+    window.onload = function() {
+      document.getElementById("infoModal").style.display = "block";
+    };
+
+    // Initialize the map with Valencia, Spain as the starting point
+    var map = L.map('map').setView([39.391667617880465, -0.36896299370032937], 12);
+
+    // Add OSM tile layer as background
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Style definitions for each layer
+    const styles = {
+      totalFlooded: { color: "#0000FF", weight: 1, fillOpacity: 0.4 },
+      builtUpFlooded: { color: "#FF0000", weight: 1, fillOpacity: 0.6 },
+      agriFlooded: { color: "#00FF00", weight: 1, fillOpacity: 0.4 },
+      clouds: { color: "#FFFFFF", weight: 2, fillOpacity: 0.5 }, // Cloud cover, semi-transparent white
+      extentBorder: { color: "#000000", weight: 2, fillOpacity: 0 } // Black border, transparent fill
+    };
+
+    // Load and add Total Flooded Area
+    fetch('data/flooded_general.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, { style: styles.totalFlooded }).addTo(map);
+      })
+      .catch(error => console.log('Error loading Total Flooded Area GeoJSON:', error));
+
+    // Load and add Flooded Residential and Industrial Zones
+    fetch('data/flooded_res.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, { style: styles.builtUpFlooded }).addTo(map);
+      })
+      .catch(error => console.log('Error loading Built-up Flooded Area GeoJSON:', error));
+
+    // Load and add Flooded Agricultural Land
+    fetch('data/flooded_agr.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, { style: styles.agriFlooded }).addTo(map);
+      })
+      .catch(error => console.log('Error loading Agricultural Flooded Area GeoJSON:', error));
+
+    // Load and add study area border (extent)
+    fetch('data/extent.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, { style: styles.extentBorder }).addTo(map);
+      })
+      .catch(error => console.log('Error loading Extent Border GeoJSON:', error));
+
+    // Load and add cloud cover area
+    fetch('data/clouds.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, { style: styles.clouds }).addTo(map);
+      })
+      .catch(error => console.log('Error loading Cloud Cover GeoJSON:', error));
+
+    // Add a legend to the map
+    var legend = L.control({ position: "bottomright" });
+    legend.onAdd = function() {
+      var div = L.DomUtil.create("div", "legend");
+      div.innerHTML += "<h3>Flooded Areas by Land Use</h3>";
+      div.innerHTML += "<h4>30th of October 2024</h4>";
+      div.innerHTML += '</i> This map does not highlight areas that<br> were covered by water previous to the event.<br><br>';
+      div.innerHTML += '<i style="background: #FF0000"></i> Flooded Built-up (Residential/Industrial)<br>';
+      div.innerHTML += '<i style="background: #00FF00"></i> Flooded Agricultural Land<br>';
+      div.innerHTML += '<i style="background: #0000FF"></i> Flooded Area - General<br>';
+      div.innerHTML += '<i style="background: #FFFFFF; opacity: 0.6"></i> Invalid: Obscured by Clouds<br>';
+      div.innerHTML += '<i style="background: #000000; opacity: 1; border: 1px solid #000"></i> Study Area Extent<br>';
+      return div;
+    };
+    legend.addTo(map);
+  </script>
+</body>
+</html>
