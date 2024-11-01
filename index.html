@@ -69,12 +69,15 @@
   <!-- Modal box -->
   <div id="infoModal" class="modal">
     <div class="modal-content">
-      <p class="med">WARNING</p>
-      <p class="small"> This data shows the extent of standing/flowing water on the 30th of October, the day after the flood. More damage
-        may have occurred before the acquisition date of the image.
-        The data is based on satellite imagery and is not validated on the ground. The data is not suitable for navigation or decision making.
+      <p class="med"><strong>WARNING</strong></p>
+      <p class="small"> The flood extent displayed on this map was derived from a machine learning
+        flood detection model applied to satellite imagery. This detection combines results from a LANDSAT-8 
+        image taken on the 30th and an Sentinel-2 image from the 31st. Some affected areas, particularly urban zones, 
+        may not have been correctly idenfified due to the resolution of the input data and the challenges of identifying flood 
+        damage in areas where water has already receded.<br><br>
+        <strong>This data has not been validated. It is not suitable for decision-making purposes.</strong>
       </p>
-      <button class="close-button" onclick="closeModal()">OK</button>
+      <button class="close-button" onclick="closeModal()"><strong>Acknowledge & Continue</strong></button>
     </div>
   </div>
 
@@ -107,7 +110,6 @@
       totalFlooded: { color: "#0000FF", weight: 1, fillOpacity: 0.4 },
       builtUpFlooded: { color: "#FF0000", weight: 1, fillOpacity: 0.6 },
       agriFlooded: { color: "#00FF00", weight: 1, fillOpacity: 0.4 },
-      clouds: { color: "#FFFFFF", weight: 2, fillOpacity: 0.5 }, // Cloud cover, semi-transparent white
       extentBorder: { color: "#000000", weight: 2, fillOpacity: 0 } // Black border, transparent fill
     };
 
@@ -143,25 +145,17 @@
       })
       .catch(error => console.log('Error loading Extent Border GeoJSON:', error));
 
-    // Load and add cloud cover area
-    fetch('data/clouds.geojson')
-      .then(response => response.json())
-      .then(data => {
-        L.geoJSON(data, { style: styles.clouds }).addTo(map);
-      })
-      .catch(error => console.log('Error loading Cloud Cover GeoJSON:', error));
 
     // Add a legend to the map
     var legend = L.control({ position: "bottomright" });
     legend.onAdd = function() {
       var div = L.DomUtil.create("div", "legend");
       div.innerHTML += "<h3>Flooded Areas by Land Use</h3>";
-      div.innerHTML += "<h4>30th of October 2024</h4>";
+      div.innerHTML += "<h4>30th & 31st of October 2024</h4>";
       div.innerHTML += '</i> This map does not highlight areas that<br> were covered by water previous to the event.<br><br>';
       div.innerHTML += '<i style="background: #FF0000"></i> Flooded Built-up (Residential/Industrial)<br>';
       div.innerHTML += '<i style="background: #00FF00"></i> Flooded Agricultural Land<br>';
       div.innerHTML += '<i style="background: #0000FF"></i> Flooded Area - General<br>';
-      div.innerHTML += '<i style="background: #FFFFFF; opacity: 0.6"></i> Invalid: Obscured by Clouds<br>';
       div.innerHTML += '<i style="background: #000000; opacity: 1; border: 1px solid #000"></i> Study Area Extent<br>';
       return div;
     };
