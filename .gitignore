@@ -1,3 +1,4 @@
+*.qmd
 dist
 dist-*
 cabal-dev

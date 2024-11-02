@@ -306,10 +306,10 @@
         }
 
 
-        addGeoJsonLayer('data/flooded_general.geojson', styles.totalFlooded, 'floodedGeneral');
-        addGeoJsonLayer('data/flooded_res.geojson', styles.builtUpFlooded, 'floodedResidential');
-        addGeoJsonLayer('data/flooded_agr.geojson', styles.agriFlooded, 'floodedAgricultural');
-        addGeoJsonLayer('data/extent.geojson', styles.extentBorder, 'extentBorder');
+        addGeoJsonLayer('data/ML4Flood/flooded_general.geojson', styles.totalFlooded, 'floodedGeneral');
+        addGeoJsonLayer('data/ML4Flood/flooded_res.geojson', styles.builtUpFlooded, 'floodedResidential');
+        addGeoJsonLayer('data/ML4Flood/flooded_agr.geojson', styles.agriFlooded, 'floodedAgricultural');
+        addGeoJsonLayer('data/ML4Flood/extent.geojson', styles.extentBorder, 'extentBorder');
 
         // Opacity
         L.Control.Opacity = L.Control.extend({
