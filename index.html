@@ -1,212 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flood Map Valencia</title>
-  <link rel="icon" href="data/wave.png" type="image/x-icon">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
-  <style>
-    #map { height: 100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flood Map Valencia</title>
+    <link rel="icon" href="data/wave.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <style>
+        #map {
+            height: 100vh;
+        }
 
-    /* Toggle button styles */
-    .toggle-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-      padding: 10px 15px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .toggle-button:hover {
-      background-color: #45a049;
-    }
+        /* Toggle button styles */
+        .toggle-button {
+            position: absolute;
+            bottom: 1.5%;
+            right: 15px;
+            z-index: 1000;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-    /* Modal styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 999;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      overflow-y: auto; /* Allow scrolling on small screens */
-    }
-    .modal-content {
-      background-color: white;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      font-size: 1rem; /* Base font size for responsiveness */
-    }
-    .close-button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .close-button:hover {
-      background-color: #45a049;
-    }
-    .big  {
-      font-size: 1.5rem;
-    }
-    .small {
-      font-size: 1rem;
-    }
-    .med {
-      font-size: 1.2rem;
-    }
+        .toggle-button:hover {
+            background-color: #45a049;
+        }
 
-    /* Legend styles */
-    .legend {
-      display: none; /* Start hidden, toggle later */
-      background: white;
-      padding: 10px;
-      line-height: 1.4rem;
-      color: #333;
-      border-radius: 5px;
-    }
-    .legend i {
-      width: 18px;
-      height: 18px;
-      float: left;
-      margin-right: 8px;
-      opacity: 0.7;
-    }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            /* Allow scrolling on small screens */
+        }
 
-    /* Media query for smaller screens */
-    @media (max-width: 600px) {
-      #map { height: 90vh; } /* Slightly reduce map height for mobile */
-      .modal-content {
-        font-size: 0.9rem;
-      }
-      .legend {
-        font-size: 0.9rem;
-      }
-    }
-  </style>
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            font-size: 1rem;
+            /* Base font size for responsiveness */
+        }
+
+        .close-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            background-color: #45a049;
+        }
+
+        .big {
+            font-size: 1.5rem;
+        }
+
+        .small {
+            font-size: 1rem;
+        }
+
+        .med {
+            font-size: 1.2rem;
+        }
+
+        /* Legend styles */
+        .legend {
+            display: none;
+            /* Start hidden, toggle later */
+            background: white;
+            padding: 10px;
+            line-height: 1.4rem;
+            color: #333;
+            border-radius: 5px;
+        }
+
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+
+        .legend-close-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            border: none;
+            background: none;
+            color: #333;
+            /* Color to match your design */
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0 5px;
+        }
+
+        .legend-close-btn:hover {
+            color: #000;
+            /* Darken on hover for visibility */
+        }
+
+        
+
+        /* Media query for smaller screens */
+        @media (max-width: 600px) {
+            #map {
+                height: 90vh;
+            }
+
+            /* Slightly reduce map height for mobile */
+            .modal-content {
+                font-size: 0.9rem;
+            }
+
+            .legend {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <!-- Toggle Button -->
-  <button class="toggle-button" onclick="toggleLegend()">Open Legend</button>
+    <!-- Toggle Button -->
+    <button class="toggle-button" onclick="toggleLegend()">Open Legend</button>
 
-  <!-- Modal box -->
-  <div id="infoModal" class="modal">
-    <div class="modal-content">
-      <p class="med"><strong>WARNING</strong></p>
-      <p class="small"> The flood extent displayed on this map was derived from a machine learning
-        flood detection model applied to satellite imagery. This detection combines results from a LANDSAT-8 
-        image taken on the 30th and a Sentinel-2 image from the 31st. Some affected areas, particularly urban zones, 
-        may not have been correctly identified due to the resolution of the input data and the challenges of identifying flood 
-        damage in areas where water has already receded.<br><br>
-        <strong>This data has not been validated. It is not suitable for decision-making purposes.</strong>
-      </p>
-      <button class="close-button" onclick="closeModal()"><strong>Acknowledge & Continue</strong></button>
+    <!-- Modal box -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <p class="med"><strong>WARNING</strong></p>
+            <p class="small"> The flood extent displayed on this map was derived from a machine learning
+                flood detection model applied to satellite imagery. This detection combines results from a LANDSAT-8
+                image taken on the 30th and a Sentinel-2 image from the 31st. Some affected areas, particularly urban
+                zones,
+                may not have been correctly identified due to the resolution of the input data and the challenges of
+                identifying flood
+                damage in areas where water has already receded.<br><br>
+                <strong>This data has not been validated. It is not suitable for decision-making purposes.</strong>
+            </p>
+            <button class="close-button" onclick="closeModal()"><strong>Acknowledge & Continue</strong></button>
+        </div>
     </div>
-  </div>
 
-  <!-- Map container -->
-  <div id="map"></div>
+    <!-- Map container -->
+    <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <script>
-    // Function to close the modal
-    function closeModal() {
-      document.getElementById("infoModal").style.display = "none";
-    }
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Function to close the modal
+        function closeModal() {
+            document.getElementById("infoModal").style.display = "none";
+        }
 
-    // Show modal on page load
-    window.onload = function() {
-      document.getElementById("infoModal").style.display = "block";
-    };
+        // Show modal on page load
+        window.onload = function () {
+            document.getElementById("infoModal").style.display = "block";
+        };
 
-    // Initialize the map with Valencia, Spain as the starting point
-    var map = L.map('map').setView([39.35, -0.36], 11);
+        // Initialize the map with Valencia, Spain as the starting point
+        var map = L.map('map').setView([39.35, -0.36], 11);
 
-    // Add OSM tile layer as background
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+        // Add OSM tile layer as background
+        /*   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '© OpenStreetMap contributors'
+          }).addTo(map); */
 
-    // Style definitions for each layer
-    const styles = {
-      totalFlooded: { color: "#0000FF", weight: 1, fillOpacity: 0.4 },
-      builtUpFlooded: { color: "#FF0000", weight: 1, fillOpacity: 0.6 },
-      agriFlooded: { color: "#00FF00", weight: 1, fillOpacity: 0.4 },
-      extentBorder: { color: "#000000", weight: 2, fillOpacity: 0 } // Black border, transparent fill
-    };
+        // Define basemaps
+        const baseMaps = {
+            "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }),
+            "Esri World Imagery": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                minZoom: 0,
+                maxZoom: 20,
+                attribution: '&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                ext: 'jpg'
+            })
+        };
 
-    // Load and add Total Flooded Area
-    fetch('data/flooded_general.geojson')
-      .then(response => response.json())
-      .then(data => {
-        L.geoJSON(data, { style: styles.totalFlooded }).addTo(map);
-      })
-      .catch(error => console.log('Error loading Total Flooded Area GeoJSON:', error));
+        // Add default basemap
+        baseMaps["OpenStreetMap"].addTo(map);
 
-    // Load and add Flooded Residential and Industrial Zones
-    fetch('data/flooded_res.geojson')
-      .then(response => response.json())
-      .then(data => {
-        L.geoJSON(data, { style: styles.builtUpFlooded }).addTo(map);
-      })
-      .catch(error => console.log('Error loading Built-up Flooded Area GeoJSON:', error));
+        // Add layer control to switch between basemaps
+        L.control.layers(baseMaps).addTo(map);
 
-    // Load and add Flooded Agricultural Land
-    fetch('data/flooded_agr.geojson')
-      .then(response => response.json())
-      .then(data => {
-        L.geoJSON(data, { style: styles.agriFlooded }).addTo(map);
-      })
-      .catch(error => console.log('Error loading Agricultural Flooded Area GeoJSON:', error));
+        // Style definitions for each layer
+        const styles = {
+            totalFlooded: { color: "#0000FF", weight: 1, fillOpacity: 0.4 },
+            builtUpFlooded: { color: "#FF0000", weight: 1, fillOpacity: 0.6 },
+            agriFlooded: { color: "#00FF00", weight: 1, fillOpacity: 0.4 },
+            extentBorder: { color: "#000000", weight: 2, fillOpacity: 0 } // Black border, transparent fill
+        };
 
-    // Load and add study area border (extent)
-    fetch('data/extent.geojson')
-      .then(response => response.json())
-      .then(data => {
-        L.geoJSON(data, { style: styles.extentBorder }).addTo(map);
-      })
-      .catch(error => console.log('Error loading Extent Border GeoJSON:', error));
+        // Load and add Total Flooded Area
+        fetch('data/flooded_general.geojson')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, { style: styles.totalFlooded }).addTo(map);
+            })
+            .catch(error => console.log('Error loading Total Flooded Area GeoJSON:', error));
 
-    // Add a legend to the map
-    var legend = L.control({ position: "bottomright" });
-    legend.onAdd = function() {
-      var div = L.DomUtil.create("div", "legend");
-      div.innerHTML += "<h3>Flooded Areas, DANA VLC 2024</h3>";
-      div.innerHTML += "<h4>30th & 31st of October 2024</h4>";
-      div.innerHTML += '<a href="https://github.com/simon-donike/VLC_flood_map" target="_blank">GitHub Repository</a>'; 
-      div.innerHTML += '<br>';
-      div.innerHTML += '</i> This map does not highlight areas that<br> were covered by water previous to the event.<br><br>';
-      div.innerHTML += '<i style="background: #FF0000"></i> Flooded Built-up (Residential/Industrial)<br>';
-      div.innerHTML += '<i style="background: #00FF00"></i> Flooded Agricultural Land<br>';
-      div.innerHTML += '<i style="background: #0000FF"></i> Flooded Area - General<br>';
-      div.innerHTML += '<i style="background: #000000"></i> AOI<br>';
-      return div;
-    };
-    legend.addTo(map);
+        // Load and add Flooded Residential and Industrial Zones
+        fetch('data/flooded_res.geojson')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, { style: styles.builtUpFlooded }).addTo(map);
+            })
+            .catch(error => console.log('Error loading Built-up Flooded Area GeoJSON:', error));
 
-    // Function to toggle the legend visibility
-    function toggleLegend() {
-      var legendElement = document.querySelector('.legend');
-      if (legendElement.style.display === 'none' || legendElement.style.display === '') {
-        legendElement.style.display = 'block';
-      } else {
-        legendElement.style.display = 'none';
-      }
-    }
-  </script>
+        // Load and add Flooded Agricultural Land
+        fetch('data/flooded_agr.geojson')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, { style: styles.agriFlooded }).addTo(map);
+            })
+            .catch(error => console.log('Error loading Agricultural Flooded Area GeoJSON:', error));
+
+        // Load and add study area border (extent)
+        fetch('data/extent.geojson')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, { style: styles.extentBorder }).addTo(map);
+            })
+            .catch(error => console.log('Error loading Extent Border GeoJSON:', error));
+
+        // Add a legend to the map
+        var legend = L.control({ position: "bottomright" });
+        legend.onAdd = function () {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<button onclick="toggleLegend()" class="legend-close-btn">&#x2715;</button>'; // Unicode X character for close
+            div.innerHTML += "<h3>Flooded Areas, DANA VLC 2024</h3>";
+            div.innerHTML += "<h4>30th & 31st of October 2024</h4>";
+            div.innerHTML += '<a href="https://github.com/simon-donike/VLC_flood_map" target="_blank">GitHub Repository</a><br>';
+            div.innerHTML += '</i> This map very likely underestimates the affected areas..<br><br>';
+            div.innerHTML += '<i style="background: #FF0000"></i> Flooded Built-up (Residential/Industrial)<br>';
+            div.innerHTML += '<i style="background: #00FF00"></i> Flooded Agricultural Land<br>';
+            div.innerHTML += '<i style="background: #0000FF"></i> Flooded Area - General<br>';
+            div.innerHTML += '<i style="background: #000000"></i> AOI<br>';
+            return div;
+        };
+        legend.addTo(map);
+
+        // Function to toggle the legend visibility
+        function toggleLegend() {
+            var legendElement = document.querySelector('.legend');
+            if (legendElement.style.display === 'none' || legendElement.style.display === '') {
+                legendElement.style.display = 'block';
+            } else {
+                legendElement.style.display = 'none';
+            }
+        }
+    </script>
 </body>
+
 </html>
