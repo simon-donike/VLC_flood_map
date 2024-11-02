@@ -100,6 +100,27 @@
             opacity: 0.7;
         }
 
+        /* Specific style for 
+        AOI with a black outline and no fill */
+        .legend .aoi-outline {
+            background: transparent;
+            /* No fill inside the box */
+            border: 2px solid black;
+            /* Black border */
+            display: inline-block;
+            width: 18px;
+            /* Smaller width */
+            height: 18px;
+            /* Smaller height */
+            margin-right: 5px;
+            /* Adjust margin to align with text */
+            vertical-align: middle;
+            /* Align with text */
+            box-sizing: border-box;
+            /* Includes padding and border in the width and height */
+            margin-right: 8px;
+        }
+
         .legend-close-btn {
             position: absolute;
             top: 0;
@@ -118,7 +139,72 @@
             /* Darken on hover for visibility */
         }
 
-        
+
+        /* Custom style for the Leaflet layers control */
+        .leaflet-control-layers {
+            background: rgba(255, 255, 255, 0.9);
+            /* Semi-transparent white background */
+            border: 1px solid #ddd;
+            /* Light gray border */
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+            /* Subtle shadow for depth */
+            border-radius: 8px;
+            /* Rounded corners */
+        }
+
+        .leaflet-control-layers-expanded {
+            padding: 10px;
+            /* Padding inside the control */
+            color: #333;
+            /* Text color */
+            font-family: Arial, sans-serif;
+            /* Font style */
+        }
+
+        .leaflet-control-layers-selector {
+            margin-top: 2px;
+            /* Adjust spacing around checkboxes */
+            margin-right: 5px;
+            /* Space before the label text */
+        }
+
+        .leaflet-control-layers label {
+            display: block;
+            /* Ensures each label/input appears on a new line */
+            color: #333;
+            /* Label text color */
+        }
+
+        .leaflet-control-layers-separator {
+            height: 1px;
+            background-color: #ddd;
+            /* Light line separator color */
+            margin: 10px 0;
+            /* Space above and below the separator */
+        }
+
+        .opacity-control {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+        }
+
+        .opacity-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        .opacity-slider:hover {
+            opacity: 1;
+        }
 
         /* Media query for smaller screens */
         @media (max-width: 600px) {
@@ -198,47 +284,61 @@
         baseMaps["OpenStreetMap"].addTo(map);
 
         // Add layer control to switch between basemaps
-        L.control.layers(baseMaps).addTo(map);
+        L.control.layers(baseMaps, null, { collapsed: false }).addTo(map);
 
         // Style definitions for each layer
         const styles = {
-            totalFlooded: { color: "#0000FF", weight: 1, fillOpacity: 0.4 },
-            builtUpFlooded: { color: "#FF0000", weight: 1, fillOpacity: 0.6 },
-            agriFlooded: { color: "#00FF00", weight: 1, fillOpacity: 0.4 },
+            totalFlooded: { color: "#3498db", weight: 1, fillOpacity: 0.8 },
+            builtUpFlooded: { color: "#e74c3c", weight: 1, fillOpacity: 0.8 },
+            agriFlooded: { color: "#FFC300", weight: 1, fillOpacity: 0.8 },
             extentBorder: { color: "#000000", weight: 2, fillOpacity: 0 } // Black border, transparent fill
         };
 
-        // Load and add Total Flooded Area
-        fetch('data/flooded_general.geojson')
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, { style: styles.totalFlooded }).addTo(map);
-            })
-            .catch(error => console.log('Error loading Total Flooded Area GeoJSON:', error));
+        var floodedGeneral, floodedResidential, floodedAgricultural;
 
-        // Load and add Flooded Residential and Industrial Zones
-        fetch('data/flooded_res.geojson')
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, { style: styles.builtUpFlooded }).addTo(map);
-            })
-            .catch(error => console.log('Error loading Built-up Flooded Area GeoJSON:', error));
+        function addGeoJsonLayer(url, style, layerRef) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    window[layerRef] = L.geoJSON(data, { style: style }).addTo(map);
+                })
+                .catch(error => console.log('Error loading GeoJSON:', error));
+        }
 
-        // Load and add Flooded Agricultural Land
-        fetch('data/flooded_agr.geojson')
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, { style: styles.agriFlooded }).addTo(map);
-            })
-            .catch(error => console.log('Error loading Agricultural Flooded Area GeoJSON:', error));
 
-        // Load and add study area border (extent)
-        fetch('data/extent.geojson')
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, { style: styles.extentBorder }).addTo(map);
-            })
-            .catch(error => console.log('Error loading Extent Border GeoJSON:', error));
+        addGeoJsonLayer('data/flooded_general.geojson', styles.totalFlooded, 'floodedGeneral');
+        addGeoJsonLayer('data/flooded_res.geojson', styles.builtUpFlooded, 'floodedResidential');
+        addGeoJsonLayer('data/flooded_agr.geojson', styles.agriFlooded, 'floodedAgricultural');
+        addGeoJsonLayer('data/extent.geojson', styles.extentBorder, 'extentBorder');
+
+        // Opacity
+        L.Control.Opacity = L.Control.extend({
+            onAdd: function (map) {
+                var div = L.DomUtil.create('div', 'opacity-control');
+                div.innerHTML = '<h4>Adjust Opacity</h4><input type="range" id="opacitySlider" min="0" max="1" step="0.1" value="0.8" oninput="updateOpacity(this.value)" style="width:100%;">';
+
+                L.DomEvent.disableClickPropagation(div);
+                L.DomEvent.on(div, 'mousedown', L.DomEvent.stopPropagation)
+                    .on(div, 'mousewheel', L.DomEvent.stopPropagation)
+                    .on(div, 'dblclick', L.DomEvent.stopPropagation)
+                    .on(div, 'touchstart', L.DomEvent.stopPropagation);
+
+                return div;
+            }
+        });
+
+        L.control.opacity = function (opts) {
+            return new L.Control.Opacity(opts);
+        }
+
+        L.control.opacity({ position: 'topright' }).addTo(map);
+
+        function updateOpacity(val) {
+            if (window.floodedGeneral) window.floodedGeneral.setStyle({ fillOpacity: val, opacity: val });
+            if (window.floodedResidential) window.floodedResidential.setStyle({ fillOpacity: val, opacity: val });
+            if (window.floodedAgricultural) window.floodedAgricultural.setStyle({ fillOpacity: val, opacity: val });
+        };
+
 
         // Add a legend to the map
         var legend = L.control({ position: "bottomright" });
@@ -249,13 +349,14 @@
             div.innerHTML += "<h4>30th & 31st of October 2024</h4>";
             div.innerHTML += '<a href="https://github.com/simon-donike/VLC_flood_map" target="_blank">GitHub Repository</a><br>';
             div.innerHTML += '</i> This map very likely underestimates the affected areas..<br><br>';
-            div.innerHTML += '<i style="background: #FF0000"></i> Flooded Built-up (Residential/Industrial)<br>';
-            div.innerHTML += '<i style="background: #00FF00"></i> Flooded Agricultural Land<br>';
-            div.innerHTML += '<i style="background: #0000FF"></i> Flooded Area - General<br>';
-            div.innerHTML += '<i style="background: #000000"></i> AOI<br>';
+            div.innerHTML += '<i style="background: #e74c3c"></i> Flooded Built-up (Residential/Industrial)<br>';
+            div.innerHTML += '<i style="background: #FFC300"></i> Flooded Agricultural Land<br>';
+            div.innerHTML += '<i style="background: #3498db"></i> Flooded Area - General<br>';
+            div.innerHTML += '<i class="legend-icon aoi-outline"></i> AOI<br>';
             return div;
         };
         legend.addTo(map);
+
 
         // Function to toggle the legend visibility
         function toggleLegend() {
