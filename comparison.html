@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flood Model Comparison</title>
+    <link rel="icon" href="data/wave.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <style>
+        #map {
+            height: 100vh;
+        }
+        .legend {
+            line-height: 1.4em;
+            color: #555;
+            background: white;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+        }
+        .close-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .close-button:hover {
+            background-color: #45a049;
+        }
+
+         /* Specific style for 
+        AOI with a black outline and no fill */
+        .legend .aoi-outline {
+            background: transparent;
+            /* No fill inside the box */
+            border: 2px solid black;
+            /* Black border */
+            display: inline-block;
+            width: 18px;
+            /* Smaller width */
+            height: 18px;
+            /* Smaller height */
+            margin-right: 5px;
+            /* Adjust margin to align with text */
+            vertical-align: middle;
+            /* Align with text */
+            box-sizing: border-box;
+            /* Includes padding and border in the width and height */
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <!-- Modal Box -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <p>This map combines information from the ISP ML4Floods model, the newspaper El Diario, and the EMRS products for comparison purposes.</p>
+            <p><strong>Warning:</strong> The data presented is provisional and not suitable for decision-making purposes.</p>
+            <button class="close-button" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([39.35, -0.36], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        const styles = {
+            emsrStyle: { color: "#d63031", weight: 2, fillOpacity: 0.5 },
+            eldiarioStyle: { color: "#0984e3", weight: 2, fillOpacity: 0.5 },
+            ispStyle: { color: "#00b894", weight: 2, fillOpacity: 0.5 },
+            extentStyle: { color: "#000000", weight: 2, fillOpacity: 0, fill: false }
+        };
+        function createLayer(url, style) {
+            var layer = L.geoJson(null, {style: style});
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    layer.addData(data);
+                    layer.addTo(map);
+                });
+            return layer;
+        }
+        var emsrLayer = createLayer("data/EMSR/emsr_merged.geojson", styles.emsrStyle);
+        var eldiarioLayer = createLayer("data/eldiario/eldiario_vector.geojson", styles.eldiarioStyle);
+        var ispLayer = createLayer("data/ML4Flood/all_merged.geojson", styles.ispStyle);
+        var extentLayer = createLayer("/data/ML4Flood/extent.geojson", styles.extentStyle);
+        extentLayer.addTo(map); // Always keep it on
+        var baseLayers = {
+            "EMRS Merged Data": emsrLayer,
+            "El Diario Vector Data": eldiarioLayer,
+            "ISP General Data": ispLayer
+        };
+        L.control.layers(null, baseLayers, {collapsed: false}).addTo(map);
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<h4>Layer Information</h4>' +
+                            '<i style="background: #d63031"></i> EMRS Merged Data<br>' +
+                            '<i style="background: #0984e3"></i> El Diario Vector Data<br>' +
+                            '<i style="background: #00b894"></i> ISP General Data<br>';
+                            div.innerHTML += '<i class="legend-icon aoi-outline"></i> AOI<br>';
+            return div;
+        };
+        legend.addTo(map);
+        function closeModal() {
+            document.getElementById("infoModal").style.display = "none";
+        }
+        window.onload = function () {
+            document.getElementById("infoModal").style.display = "block";
+        };
+    </script>
+</body>
+</html>
