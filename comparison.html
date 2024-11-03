@@ -118,9 +118,9 @@
         var extentLayer = createLayer("/data/ML4Flood/extent.geojson", styles.extentStyle);
         extentLayer.addTo(map); // Always keep it on
         var baseLayers = {
-            "EMRS Merged Data": emsrLayer,
-            "El Diario Vector Data": eldiarioLayer,
-            "ISP General Data": ispLayer
+            "EMRS": emsrLayer,
+            "El Diario Map": eldiarioLayer,
+            "ISP ML4Flood": ispLayer
         };
         L.control.layers(null, baseLayers, {collapsed: false}).addTo(map);
         var legend = L.control({position: 'bottomright'});

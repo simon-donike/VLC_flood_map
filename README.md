@@ -2,7 +2,7 @@
 
 **[View the hosted map on GitHub Pages](https://simon-donike.github.io/VLC_flood_map/)**
 
-![Map](data/screenshot.png)
+![Map](data/screenshots/screenshot.png)
 
 ## Overview
 This repository contains a visual map of the flood extent in Valencia, Spain, using satellite imagery data captured on **October 30, 2024**. The flood event itself occurred on **October 29, 2024**, and this map represents the areas that were still affected by standing or flowing water on the following day.
